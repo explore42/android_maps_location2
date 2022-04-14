@@ -34,6 +34,12 @@ public class MainActivity extends AppCompatActivity {
 
         locationInfo = (TextView) findViewById(R.id.location_info);
 
+        LocationClient.setAgreePrivacy(true);
+        //setAgreePrivacy接口需要在LocationClient实例化之前调用
+        //如果setAgreePrivacy接口参数设置为了false，则定位功能不会实现
+        //true，表示用户同意隐私合规政策
+        //false，表示用户不同意隐私合规政策
+
         try {
             LocationClient.setAgreePrivacy(true);
             mLocationClient = new LocationClient(getApplicationContext());//声明LocationClient类
