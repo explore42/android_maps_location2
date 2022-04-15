@@ -34,14 +34,12 @@ public class MainActivity extends AppCompatActivity {
 
         locationInfo = (TextView) findViewById(R.id.location_info);
 
-        LocationClient.setAgreePrivacy(true);
-        //setAgreePrivacy接口需要在LocationClient实例化之前调用
-        //如果setAgreePrivacy接口参数设置为了false，则定位功能不会实现
-        //true，表示用户同意隐私合规政策
-        //false，表示用户不同意隐私合规政策
-
         try {
             LocationClient.setAgreePrivacy(true);
+            //setAgreePrivacy接口需要在LocationClient实例化之前调用
+            //如果setAgreePrivacy接口参数设置为了false，则定位功能不会实现
+            //true，表示用户同意隐私合规政策
+            //false，表示用户不同意隐私合规政策
             mLocationClient = new LocationClient(getApplicationContext());//声明LocationClient类
         } catch (Exception e) {
             Log.e("Tag","找不到mLocationClient");//Error
@@ -50,19 +48,14 @@ public class MainActivity extends AppCompatActivity {
         mLocationClient.registerLocationListener(myListener);//注册监听函数
 
         // 动态申请权限
+        //应该和Manifest文件中的一一对应上
         List<String> permissionList = new ArrayList<String>();
         if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             permissionList.add(Manifest.permission.ACCESS_FINE_LOCATION);
         }
-
-        if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_BACKGROUND_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            permissionList.add(Manifest.permission.ACCESS_BACKGROUND_LOCATION);
-        }
-
         if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             permissionList.add(Manifest.permission.ACCESS_COARSE_LOCATION);
         }
-
         if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
             permissionList.add(Manifest.permission.READ_PHONE_STATE);
         }
@@ -182,6 +175,7 @@ public class MainActivity extends AppCompatActivity {
             StringBuilder currentPosition = new StringBuilder();
             currentPosition.append("latitude: ").append(latitude).append("\n");
             currentPosition.append("longitude: ").append(longitude).append("\n");
+            currentPosition.append("errorCode: ").append(errorCode).append("\n");
             locationInfo.setText(currentPosition);
         }
     }
