@@ -4,6 +4,7 @@ import android.Manifest;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.util.Log;
+import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Toast;
@@ -35,6 +36,13 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         locationMap = (WebView) findViewById(R.id.webview_location);
+        WebSettings webSettings = locationMap.getSettings();
+        // 这个是设置WebView是否支持ViewPort属性，
+        // ViewPort是在html中配置，主要为了适配各种屏幕,如果html中有配置这个属性，那么即使不设置这个属性也是会适配屏幕的
+        // 注意：当html中有这个属性时，WebView设置缩放属性是不起作用的
+        webSettings.setUseWideViewPort(true);
+        // 当html中没有配置ViewPort这个属性时，同时还需要设置下面这个属性才能适配屏幕
+        webSettings.setLoadWithOverviewMode(true);
 
         try {
             LocationClient.setAgreePrivacy(true);
@@ -203,6 +211,7 @@ public class MainActivity extends AppCompatActivity {
         locationMap.getSettings().setJavaScriptEnabled(true);
         locationMap.setWebViewClient(new WebViewClient());//用户点击的所有链接都会在您的 WebView 中加载
         locationMap.addJavascriptInterface(new WebAppInterface(this), "Android");//绑定到Jscript，创建名为 Android 的接口
+
         locationMap.loadUrl("file:///android_asset/web/video.html");
     }
 }
