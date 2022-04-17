@@ -1,17 +1,17 @@
 package com.example.android_maps_location2;
 
+import android.Manifest;
+import android.content.pm.PackageManager;
+import android.os.Bundle;
+import android.util.Log;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
+import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-
-import android.Manifest;
-import android.app.Activity;
-import android.content.pm.PackageManager;
-import android.os.Bundle;
-import android.util.Log;
-import android.widget.TextView;
-import android.widget.Toast;
 
 import com.baidu.location.BDAbstractLocationListener;
 import com.baidu.location.BDLocation;
@@ -23,16 +23,18 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
+    public boolean locationStatus = false;
+
     public LocationClient mLocationClient = null;
     private MyLocationListener myListener = new MyLocationListener();
-    TextView locationInfo;
+    WebView locationMap;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        locationInfo = (TextView) findViewById(R.id.location_info);
+        locationMap = (WebView) findViewById(R.id.webview_location);
 
         try {
             LocationClient.setAgreePrivacy(true);
@@ -42,7 +44,7 @@ public class MainActivity extends AppCompatActivity {
             //false，表示用户不同意隐私合规政策
             mLocationClient = new LocationClient(getApplicationContext());//声明LocationClient类
         } catch (Exception e) {
-            Log.e("Tag","找不到mLocationClient");//Error
+            Log.e("Tag", "找不到mLocationClient");//Error
             e.printStackTrace();
         }
         mLocationClient.registerLocationListener(myListener);//注册监听函数
@@ -67,6 +69,13 @@ public class MainActivity extends AppCompatActivity {
             ActivityCompat.requestPermissions(MainActivity.this, permissions, 1);
         } else {
             requestLocation();// 拥有所有权限后开始执行
+        }
+
+        initMap();//web view
+
+        if (locationStatus == true) {// 取消定位
+            mLocationClient.disableAssistantLocation();
+            //Log.d("location","location success, assistance has been disabled");
         }
     }
 
@@ -97,6 +106,7 @@ public class MainActivity extends AppCompatActivity {
     private void requestLocation() {
         initLocation();
         mLocationClient.start();
+        mLocationClient.enableAssistantLocation(locationMap);
     }
 
     private void initLocation() {
@@ -162,6 +172,8 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onReceiveLocation(BDLocation location) {
             //此处的BDLocation为定位结果信息类，通过它的各种get方法可获取定位相关的全部结果
+            //详细参考
+            //https://lbsyun.baidu.com/index.php?title=android-locsdk/guide/getloc
 
             double latitude = location.getLatitude();    //获取纬度信息
             double longitude = location.getLongitude();    //获取经度信息
@@ -175,8 +187,22 @@ public class MainActivity extends AppCompatActivity {
             StringBuilder currentPosition = new StringBuilder();
             currentPosition.append("latitude: ").append(latitude).append("\n");
             currentPosition.append("longitude: ").append(longitude).append("\n");
-            currentPosition.append("errorCode: ").append(errorCode).append("\n");
-            locationInfo.setText(currentPosition);
+            //currentPosition.append("errorCode: ").append(errorCode).append("\n");
+            //locationInfo.setText(currentPosition);
+
+            Log.d("location", Integer.toString(errorCode));
+            if (errorCode == 61) {//location success
+                locationStatus = true;
+                //Log.d("location","location success, assistance start to disable");
+            }
         }
+    }
+
+    private void initMap() {
+        //https://lbsyun.baidu.com/index.php?title=android-locsdk/guide/addition-func/assistant-h5
+        locationMap.getSettings().setJavaScriptEnabled(true);
+        locationMap.setWebViewClient(new WebViewClient());//用户点击的所有链接都会在您的 WebView 中加载
+        locationMap.addJavascriptInterface(new WebAppInterface(this), "Android");//绑定到Jscript，创建名为 Android 的接口
+        locationMap.loadUrl("file:///android_asset/web/video.html");
     }
 }
