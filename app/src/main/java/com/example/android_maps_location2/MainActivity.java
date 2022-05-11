@@ -66,9 +66,6 @@ public class MainActivity extends AppCompatActivity {
         if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             permissionList.add(Manifest.permission.ACCESS_COARSE_LOCATION);
         }
-        if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
-            permissionList.add(Manifest.permission.READ_PHONE_STATE);
-        }
         if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
             permissionList.add(Manifest.permission.WRITE_EXTERNAL_STORAGE);
         }
@@ -81,10 +78,11 @@ public class MainActivity extends AppCompatActivity {
 
         initMap();//web view
 
+        /*
         if (locationStatus == true) {// 取消定位
             mLocationClient.disableAssistantLocation();
             //Log.d("location","location success, assistance has been disabled");
-        }
+        }*/
     }
 
     // 判断用户权限
@@ -197,6 +195,8 @@ public class MainActivity extends AppCompatActivity {
             currentPosition.append("longitude: ").append(longitude).append("\n");
             //currentPosition.append("errorCode: ").append(errorCode).append("\n");
             //locationInfo.setText(currentPosition);
+            Log.d("latitude", Double.toString(latitude));
+            Log.d("longitude", Double.toString(longitude));
 
             Log.d("location", Integer.toString(errorCode));
             if (errorCode == 61) {//location success
@@ -212,6 +212,6 @@ public class MainActivity extends AppCompatActivity {
         locationMap.setWebViewClient(new WebViewClient());//用户点击的所有链接都会在您的 WebView 中加载
         locationMap.addJavascriptInterface(new WebAppInterface(this), "Android");//绑定到Jscript，创建名为 Android 的接口
 
-        locationMap.loadUrl("file:///android_asset/web/video.html");
+        locationMap.loadUrl("file:///android_asset/web/index.html");
     }
 }
