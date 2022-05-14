@@ -27,8 +27,14 @@
     var geolocation = new BMap.Geolocation();
     geolocation.enableSDKLocation();// 开启辅助定位
 
+    var pointFinal = new BMap.Point(116.404, 39.915);// 存储最后的定位点
+
     geolocation.getCurrentPosition(function(r){
         if(this.getStatus() == BMAP_STATUS_SUCCESS){
+            pointFinal = r.point;
+            console.log("最后的定位点");
+            console.log(pointFinal.lng);
+
             var mk = new BMap.Marker(r.point);
             map.addOverlay(mk);
             map.panTo(r.point);
@@ -38,6 +44,61 @@
             alert('failed'+this.getStatus());
         }
     });
+
+    // 定义一个控件类，即function
+    function ZoomControl() {
+        // 设置默认停靠位置和偏移量
+        this.defaultAnchor = BMAP_ANCHOR_BOTTOM_RIGHT;
+        this.defaultOffset = new BMap.Size(10, 100);
+    }
+    // 通过JavaScript的prototype属性继承于BMap.Control
+    ZoomControl.prototype = new BMap.Control();
+
+    // 自定义控件必须实现initialize方法，并且将控件的DOM元素返回
+    // 在本方法中创建个div元素作为控件的容器，并将其添加到地图容器中
+    ZoomControl.prototype.initialize = function (map) {
+        // 创建一个DOM元素
+        var div = document.createElement("div");
+        // 添加文字说明
+        var childNode = div.appendChild(document.createElement('p'));
+        childNode.innerHTML = '<p style="color: white; text-align: center;">定位</p>';
+
+        // 设置样式
+        div.style.width = "70px";
+        div.style.borderRadius = "15px";
+        div.style.padding = "10px";
+        div.style.border = "0px solid gray";
+        div.style.backgroundColor = "#6200EE";
+        // 绑定事件，点击一次放大两级
+        div.onclick = function (e) {
+            //map.zoomTo(map.getZoom() + 2);
+            console.log("定位");
+
+            //map.panTo(pointFinal);//测试地图是不是只定位一次
+
+            geolocation.getCurrentPosition(function(r){
+                if(this.getStatus() == BMAP_STATUS_SUCCESS){
+                    var mk = new BMap.Marker(r.point);
+                    map.addOverlay(mk);
+                    map.panTo(r.point);
+                    alert('您的位置：'+r.point.lng+','+r.point.lat);
+                }
+                else {
+                    alert('failed'+this.getStatus());
+                }
+            });
+
+        }
+        // 添加DOM元素到地图中
+        map.getContainer().appendChild(div);
+        // 将DOM元素返回
+        return div;
+    }
+
+    // 创建控件实例
+    var myZoomCtrl = new ZoomControl();
+    // 添加到地图当中
+    map.addControl(myZoomCtrl);
 
     </script>
 </body>
